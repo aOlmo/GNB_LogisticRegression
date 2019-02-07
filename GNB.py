@@ -5,6 +5,8 @@ from io import StringIO
 from sklearn.model_selection import KFold
 
 
+dataset_layout = ["attr1", "attr2", "attr3", "attr4", "class"]
+
 def mean(vals):
     return np.sum(vals) / vals.shape[0]
 
@@ -14,12 +16,11 @@ def stddev(vals):
     v = (np.sum((vals-m)**2)/n)
     return np.sqrt(v)
 
-def PDF(X, m, std):
+def probability_calculation(X, m, std):
     exp = np.exp(-(((X-m)**2) / (2 * std**2)))
     mult = (1 / (np.sqrt(2 * np.pi) * std))
     return mult * exp
 
-dataset_layout = ["attr1", "attr2", "attr3", "attr4", "class"]
 
 for i, name in enumerate(dataset_layout):
     if name == "class":
@@ -58,7 +59,46 @@ for c in cs:
             "std": stddev(c_X[:, i])
         }
 
-print(m_v_dict[0])
+# def calculateClassProbabilities(summaries, inputVector):
+probabilities = {}
+
+m_v_dict = {}
+m_v_dict[0] = {}
+m_v_dict[1] = {}
+
+m_v_dict[0]['attr1'] = {
+    "mean": 1,
+    "std": 0.5
+}
+
+m_v_dict[1]['attr2'] = {
+    "mean": 20,
+    "std": 5.0
+}
+
+inp_vector = [1.1, '?']
+
+for c in m_v_dict:
+    probabilities[c] = 1
+    for i, attr in enumerate(m_v_dict[c]):
+        attr_vals = m_v_dict[c][attr]
+        mean, std = attr_vals['mean'], attr_vals['std']
+        # Iterate through input vector
+        x = inp_vector[i]
+        probabilities[c] *= probability_calculation(x, mean, std)
+
+print(probabilities)
+exit()
+
+# probabilities = {}
+# 	for classValue, classSummaries in summaries.iteritems():
+# 		probabilities[classValue] = 1
+# 		for i in range(len(classSummaries)):
+# 			mean, stdev = classSummaries[i]
+# 			x = inputVector[i]
+# 			probabilities[classValue] *= calculateProbability(x, mean, stdev)
+# 	return probabilities
+
 
 # - Create PDF
 
