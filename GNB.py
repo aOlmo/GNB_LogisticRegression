@@ -10,6 +10,25 @@ for i, name in enumerate(dataset_layout):
     if name == "class":
         c_pos = i
 
+# ================== Gathering the data ================== #
+data_fname = 'data_banknote_authentication.txt'
+df = pd.read_csv(data_fname, sep=',', header=None)
+data = df.values
+X = df.iloc[:, 0:c_pos].values
+y = df[c_pos].values
+n_total_rows = X.shape[0]
+
+# Get all data values for Class 0 and Class 1
+c0_X = df.loc[df[c_pos] == cs[0]].iloc[:, 0:c_pos].values
+c1_X = df.loc[df[c_pos] == cs[1]].iloc[:, 0:c_pos].values
+n_c0 = c0_X.shape[0]
+n_c1 = c1_X.shape[0]
+
+# - Calculate Prior
+pri_c1, pri_c0 = n_c1 / n_total_rows, n_c0 / n_total_rows
+# ================== ================== ================== #
+
+
 def mean(vals):
     return np.sum(vals) / vals.shape[0]
 
@@ -27,64 +46,61 @@ def probability_calculation(X, m, std):
     return mult * exp
 
 
-# ================== Gathering the data ================== #
-data_fname = 'data_banknote_authentication.txt'
-df = pd.read_csv(data_fname, sep=',', header=None)
-data = df.values
-X = df.iloc[:, 0:c_pos].values
-y = df[c_pos].values
-n_total_rows = X.shape[0]
-
-# Get all data values for Class 0 and Class 1
-c0_X = df.loc[df[c_pos] == cs[0]].iloc[:, 0:c_pos].values
-c1_X = df.loc[df[c_pos] == cs[1]].iloc[:, 0:c_pos].values
-n_c0 = c0_X.shape[0]
-n_c1 = c1_X.shape[0]
-
-# ================== ================== ================== #
-
 # GNB:
-# - Calculate Prior
-pri_c1, pri_c0 = n_c1/n_total_rows, n_c0/n_total_rows
-
 # - Calculate Mean and Std for each attr in each class
-m_v_dict = {}
-for c in cs:
-    m_v_dict[c] = {}
-    c_X = c0_X if c == 0 else c1_X
-    for i, attr in enumerate(dataset_layout[:c_pos]):
-        m_v_dict[c][attr] = {
-            "mean": mean(c_X[:, i]),
-            "std": stddev(c_X[:, i])
-        }
+def calculate_m_v_dict():
 
-inp_vector = c0_X[7]
-print(inp_vector)
+    m_v_dict = {}
+    for c in cs:
+        m_v_dict[c] = {}
+        c_X = c0_X if c == 0 else c1_X
+        for i, attr in enumerate(dataset_layout[:c_pos]):
+            m_v_dict[c][attr] = {
+                "mean": mean(c_X[:, i]),
+                "std": stddev(c_X[:, i])
+            }
 
-class_probs = {}
-for c in m_v_dict:
-    class_probs[c] = 1
-    # Select the prior amongst the 2
-    prior = pri_c0 if c == 0 else pri_c1
-    # The input vector must have the same amount of values as attrs per class
-    for i, attr in enumerate(m_v_dict[c]):
-        attr_vals = m_v_dict[c][attr]
-        mean, std = attr_vals['mean'], attr_vals['std']
-        # Iterate through input vector
-        x = inp_vector[i]
-        # Assuming conditional independence
-        class_probs[c] += np.log(probability_calculation(x, mean, std))
+    return m_v_dict
 
-    class_probs[c] += np.log(prior)
+# Calculation of predictions
+def predict(inp_vector, m_v_dict):
+    class_probs = {}
+    for c in m_v_dict:
+        class_probs[c] = 1
+        # Select the prior amongst the 2
+        prior = pri_c0 if c == 0 else pri_c1
+        # The input vector must have the same amount of values as attrs per class
+        for i, attr in enumerate(m_v_dict[c]):
+            attr_vals = m_v_dict[c][attr]
+            mean, std = attr_vals['mean'], attr_vals['std']
+            # Iterate through input vector
+            x = inp_vector[i]
+            # Assuming conditional independence
+            class_probs[c] += np.log(probability_calculation(x, mean, std))
 
-# After the probabilities calculation, we will choose the one that is the largest
+        class_probs[c] += np.log(prior)
 
-print(class_probs)
+    # After the probabilities calculation, we will choose the one that is the largest
+    return 0 if class_probs[0] > class_probs[1] else 1
 
-if class_probs[0] > class_probs[1]:
-    print("Class 0")
-else:
-    print("Class 1")
 
-# - Predict new samples
-# TODO
+# Calculation of the accuracy
+def accuracy(X_test, y_test, m_v_dict):
+    n = X_test.shape[0]
+    corrects = []
+    for x, y in zip(X_test, y_test):
+        y_pred = predict(x, m_v_dict)
+        corrects.append(y_pred - y)
+
+    corrects = np.array(corrects)
+    total_preds = np.count_nonzero(corrects == 0)
+    return total_preds/n
+
+
+if __name__ == '__main__':
+    X_test = c0_X
+    y_test = [0] * X_test.shape[0]  # TODO!
+
+    m_v_dict = calculate_m_v_dict()
+    acc = accuracy(X_test, y_test, m_v_dict)
+    print("The accuracy is: {}".format(acc))

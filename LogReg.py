@@ -43,7 +43,7 @@ def logistic_regression(X, y, num_steps, learning_rate):
         gradient = np.dot(X.T, output_error_signal)
         weights += learning_rate * gradient
 
-        # Print log-likelihood every so often
+        # Print log-likelihood loss
         if step % 1000 == 0:
             print("Loss: {}".format(log_likelihood(X, y, weights)))
 
