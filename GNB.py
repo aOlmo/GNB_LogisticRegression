@@ -36,7 +36,7 @@ def mean(vals):
 def stddev(vals):
     n = vals.shape[0]
     m = mean(vals)
-    v = (np.sum((vals-m)**2)/n)
+    v = (np.sum((vals-m)**2)/(n-1))
     return np.sqrt(v)
 
 
@@ -80,7 +80,7 @@ def predict(inp_vector, m_v_dict):
 
         class_probs[c] += np.log(prior)
 
-    # After the probabilities calculation, we will choose the one that is the largest
+    # We will choose the largest probability
     return 0 if class_probs[0] > class_probs[1] else 1
 
 
@@ -96,11 +96,31 @@ def accuracy(X_test, y_test, m_v_dict):
     total_preds = np.count_nonzero(corrects == 0)
     return total_preds/n
 
+# Function that generates new samples from the trained GNB
+def gen_n_samples(n, c, m_v_dict):
+    ret = []
+    a = np.zeros([n])
+    for attr in m_v_dict[c]:
+        curr_attr = m_v_dict[c][attr]
+        m, std = curr_attr['mean'], curr_attr['std']
+        gen_val = np.random.normal(m, std, n)
+        a = np.vstack((gen_val, a))
+        print(attr+str(gen_val))
+
+    # Remove the last one
+    a = a[:a.shape[0]-1]
+    return np.flip(a.T, 1)
+
+
 
 if __name__ == '__main__':
-    X_test = c0_X
-    y_test = [0] * X_test.shape[0]  # TODO!
+    X_test = c1_X
+    y_test = [1] * X_test.shape[0]  # TODO!
 
     m_v_dict = calculate_m_v_dict()
-    acc = accuracy(X_test, y_test, m_v_dict)
-    print("The accuracy is: {}".format(acc))
+    # acc = accuracy(X_test, y_test, m_v_dict)
+    # print("The accuracy is: {}".format(acc))
+    # TODO: improve this
+    test = gen_n_samples(400, 1, m_v_dict)
+    for i in test:
+        print(predict(i, m_v_dict))
