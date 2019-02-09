@@ -1,33 +1,14 @@
 import numpy as np
 import pandas as pd
+from Dataset import Dataset
 
 from sklearn.model_selection import KFold
 
-c_pos = 0
+d = Dataset()
+c_pos = d.get_c_pos()
+pri_c0, pri_c1 = d.get_classes_prior()
 cs = [0, 1]
-n_classes = 2
-dataset_layout = ["attr1", "attr2", "attr3", "attr4", "class"]
-
-for i, name in enumerate(dataset_layout):
-    if name == "class":
-        c_pos = i
-
-# ================== Gathering the data ================== #
-def get_train_test_sets(kfold):
-    data_fname = 'data_banknote_authentication.txt'
-    df = pd.read_csv(data_fname, sep=',', header=None)
-    data = df.values
-
-    kfold = KFold(kfold, True, 0)
-    X = data[:, 0:c_pos]
-    y = data[:, c_pos]
-
-    for train_index, test_index in kfold.split(data):
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-
-    return X_train, X_test, y_train, y_test
-# ================== ================== ================== #
+dataset_layout = d.get_dataset_layout()
 
 
 class LogReg():
@@ -80,10 +61,10 @@ class LogReg():
 
 
 if __name__ == '__main__':
-    kfold = 3
     n_steps = 10000
     lr = 0.001
-    X_train, X_test, y_train, y_test = get_train_test_sets(kfold)
+
+    X_train, X_test, y_train, y_test = d.get_train_test_sets()
 
     LR = LogReg(X_train, y_train, n_steps, lr)
     acc = LR.accuracy(X_test, y_test)

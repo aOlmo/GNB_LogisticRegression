@@ -1,38 +1,11 @@
 import numpy as np
-import pandas as pd
+from Dataset import Dataset
 
-from sklearn.model_selection import KFold
-
-c_pos = 0
+d = Dataset()
+c_pos = d.get_c_pos()
+pri_c0, pri_c1 = d.get_classes_prior()
 cs = [0, 1]
-n_classes = 2
-dataset_layout = ["attr1", "attr2", "attr3", "attr4", "class"]
-
-for i, name in enumerate(dataset_layout):
-    if name == "class":
-        c_pos = i
-
-# ================== Gathering the data ================== #
-data_fname = 'data_banknote_authentication.txt'
-df = pd.read_csv(data_fname, sep=',', header=None)
-data = df.values
-
-kfold = KFold(3, True, 0)
-X = data[:, 0:c_pos]
-y = data[:, c_pos]
-n = data.shape[0]
-
-for train_index, test_index in kfold.split(data):
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y[train_index], y[test_index]
-
-# Get count of 0s and 1s
-n_c1 = np.count_nonzero(data, axis=0)[c_pos]
-n_c0 = abs(n_c1 - n)
-
-# - Calculate Prior
-pri_c1, pri_c0 = n_c1 / n, n_c0 / n
-# ================== ================== ================== #
+dataset_layout = d.get_dataset_layout()
 
 class GNB:
     def __init__(self, X_train, y_train, cs, m_std_dict=False):
@@ -122,6 +95,9 @@ class GNB:
 
 if __name__ == '__main__':
     gen_class = 1
+
+    X_train, X_test, y_train, y_test = d.get_train_test_sets()
+
     init_GNB = GNB(X_train, y_train, cs)
 
     X_gen_samples = init_GNB.gen_n_samples(400, gen_class)
