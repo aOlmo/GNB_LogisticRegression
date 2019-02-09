@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from sklearn.model_selection import KFold
+
 c_pos = 0
 cs = [0, 1]
 n_classes = 2
@@ -11,16 +13,20 @@ for i, name in enumerate(dataset_layout):
         c_pos = i
 
 # ================== Gathering the data ================== #
-data_fname = 'data_banknote_authentication.txt'
-df = pd.read_csv(data_fname, sep=',', header=None)
-data = df.values
-X = df.iloc[:, 0:c_pos].values
-y = df[c_pos].values
-n_total_rows = X.shape[0]
+def get_train_test_sets(kfold):
+    data_fname = 'data_banknote_authentication.txt'
+    df = pd.read_csv(data_fname, sep=',', header=None)
+    data = df.values
 
-# Get all data values for Class 0 and Class 1
-c0_X = df.loc[df[c_pos] == cs[0]].iloc[:, 0:c_pos].values
-c1_X = df.loc[df[c_pos] == cs[1]].iloc[:, 0:c_pos].values
+    kfold = KFold(kfold, True, 0)
+    X = data[:, 0:c_pos]
+    y = data[:, c_pos]
+
+    for train_index, test_index in kfold.split(data):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+
+    return X_train, X_test, y_train, y_test
 # ================== ================== ================== #
 
 # - Define the Logistic function
@@ -65,10 +71,10 @@ def accuracy(X_test, y_test, weights):
 
 
 if __name__ == '__main__':
-    X_test = c1_X
-    y_test = [1]*c0_X.shape[0]
+    kfold = 3
+    X_train, X_test, y_train, y_test = get_train_test_sets(kfold)
 
-    weights = logistic_regression(X, y, 10000, 0.001)
+    weights = logistic_regression(X_train, y_train, 10000, 0.001)
 
     acc = accuracy(X_test, y_test, weights)
     print("The accuracy is: {}".format(acc))

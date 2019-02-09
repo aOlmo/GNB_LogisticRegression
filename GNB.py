@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from sklearn.model_selection import KFold
+
 c_pos = 0
 cs = [0, 1]
 n_classes = 2
@@ -14,18 +16,23 @@ for i, name in enumerate(dataset_layout):
 data_fname = 'data_banknote_authentication.txt'
 df = pd.read_csv(data_fname, sep=',', header=None)
 data = df.values
-X = df.iloc[:, 0:c_pos].values
-y = df[c_pos].values
-n_total_rows = X.shape[0]
 
-# Get all data values for Class 0 and Class 1
-c0_X = df.loc[df[c_pos] == cs[0]].iloc[:, 0:c_pos].values
-c1_X = df.loc[df[c_pos] == cs[1]].iloc[:, 0:c_pos].values
-n_c0 = c0_X.shape[0]
-n_c1 = c1_X.shape[0]
+kfold = KFold(3, True, 0)
+X = data[:, 0:c_pos]
+y = data[:, c_pos]
+n = data.shape[0]
+
+for train_index, test_index in kfold.split(data):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, y_test = y[train_index], y[test_index]
+
+
+# Get count of 0s and 1s
+n_c1 = np.count_nonzero(data, axis=0)[c_pos]
+n_c0 = abs(n_c1 - n)
 
 # - Calculate Prior
-pri_c1, pri_c0 = n_c1 / n_total_rows, n_c0 / n_total_rows
+pri_c1, pri_c0 = n_c1 / n, n_c0 / n
 # ================== ================== ================== #
 
 
@@ -48,16 +55,16 @@ def probability_calculation(X, m, std):
 
 # GNB:
 # - Calculate Mean and Std for each attr in each class
-def calculate_m_v_dict():
-
+def calculate_m_v_dict(X_train, y_train):
     m_v_dict = {}
+    data_train = np.c_[X_train, y_train]
     for c in cs:
-        m_v_dict[c] = {}
-        c_X = c0_X if c == 0 else c1_X
+        m_v_dict[c]={}
+        X_train_c = data_train[data_train[:, c_pos] == c][:, :c_pos]
         for i, attr in enumerate(dataset_layout[:c_pos]):
             m_v_dict[c][attr] = {
-                "mean": mean(c_X[:, i]),
-                "std": stddev(c_X[:, i])
+                "mean": mean(X_train_c),
+                "std": stddev(X_train_c)
             }
 
     return m_v_dict
@@ -96,7 +103,7 @@ def accuracy(X_test, y_test, m_v_dict):
     total_preds = np.count_nonzero(corrects == 0)
     return total_preds/n
 
-# Function that generates new samples from the trained GNB
+# Function that generates new samples from the trained GNB and given class
 def gen_n_samples(n, c, m_v_dict):
     ret = []
     a = np.zeros([n])
@@ -105,22 +112,18 @@ def gen_n_samples(n, c, m_v_dict):
         m, std = curr_attr['mean'], curr_attr['std']
         gen_val = np.random.normal(m, std, n)
         a = np.vstack((gen_val, a))
-        print(attr+str(gen_val))
 
     # Remove the last one
     a = a[:a.shape[0]-1]
     return np.flip(a.T, 1)
 
 
-
 if __name__ == '__main__':
-    X_test = c1_X
-    y_test = [1] * X_test.shape[0]  # TODO!
 
-    m_v_dict = calculate_m_v_dict()
+    m_v_dict = calculate_m_v_dict(X_train, y_train)
     # acc = accuracy(X_test, y_test, m_v_dict)
     # print("The accuracy is: {}".format(acc))
-    # TODO: improve this
-    test = gen_n_samples(400, 1, m_v_dict)
-    for i in test:
-        print(predict(i, m_v_dict))
+
+    X_test = gen_n_samples(400, 0, m_v_dict)
+    y_test = [0] * X_test.shape[0]
+    print(accuracy(X_test, y_test, m_v_dict))
