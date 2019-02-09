@@ -17,7 +17,7 @@ data_fname = 'data_banknote_authentication.txt'
 df = pd.read_csv(data_fname, sep=',', header=None)
 data = df.values
 
-kfold = KFold(3, True, 0)
+kfold = KFold(3, False, 0)
 X = data[:, 0:c_pos]
 y = data[:, c_pos]
 n = data.shape[0]
@@ -25,7 +25,6 @@ n = data.shape[0]
 for train_index, test_index in kfold.split(data):
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = y[train_index], y[test_index]
-
 
 # Get count of 0s and 1s
 n_c1 = np.count_nonzero(data, axis=0)[c_pos]
@@ -63,8 +62,8 @@ def calculate_m_v_dict(X_train, y_train):
         X_train_c = data_train[data_train[:, c_pos] == c][:, :c_pos]
         for i, attr in enumerate(dataset_layout[:c_pos]):
             m_v_dict[c][attr] = {
-                "mean": mean(X_train_c),
-                "std": stddev(X_train_c)
+                "mean": mean(X_train_c[:, i]),
+                "std": stddev(X_train_c[:, i])
             }
 
     return m_v_dict
@@ -120,10 +119,14 @@ def gen_n_samples(n, c, m_v_dict):
 
 if __name__ == '__main__':
 
+    X = np.array([[1,2,3,4,0], [1,2,3,4,0], [4,3,2,1,1], [4,3,2,1,1]])
+
     m_v_dict = calculate_m_v_dict(X_train, y_train)
     # acc = accuracy(X_test, y_test, m_v_dict)
     # print("The accuracy is: {}".format(acc))
 
-    X_test = gen_n_samples(400, 0, m_v_dict)
-    y_test = [0] * X_test.shape[0]
+    # X_test = gen_n_samples(400, 1, m_v_dict)
+    # y_test = [1] * X_test.shape[0]
+
+    # print(y_test)
     print(accuracy(X_test, y_test, m_v_dict))
