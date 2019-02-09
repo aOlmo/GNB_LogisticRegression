@@ -29,52 +29,63 @@ def get_train_test_sets(kfold):
     return X_train, X_test, y_train, y_test
 # ================== ================== ================== #
 
-# - Define the Logistic function
-def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
 
-def log_likelihood(X, y, theta):
-    scores = np.dot(X, theta)
-    return np.sum(y*scores - np.log(1 + np.exp(scores)))
+class LogReg():
+    def __init__(self, X_train, y_train, n_steps, lr):
+        self.X_train = X_train
+        self.y_train = y_train
+        self.n_steps = n_steps
+        self.lr = lr
+        self.weights = self.logistic_regression()
 
-def logistic_regression(X, y, num_steps, learning_rate):
-    weights = np.zeros(X.shape[1])
+    # - Define the Logistic function
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
 
-    for step in range(num_steps):
-        scores = np.dot(X, weights)
-        predictions = sigmoid(scores)
+    def log_likelihood(self, weights):
+        scores = np.dot(self.X_train, weights)
+        return np.sum(self.y_train*scores - np.log(1 + np.exp(scores)))
 
-        # Update weights with gradient
-        output_error_signal = y - predictions
-        gradient = np.dot(X.T, output_error_signal)
-        weights += learning_rate * gradient
+    def logistic_regression(self):
+        weights = np.zeros(self.X_train.shape[1])
 
-        # Print log-likelihood loss
-        if step % 1000 == 0:
-            print("Loss: {}".format(log_likelihood(X, y, weights)))
+        for step in range(self.n_steps):
+            scores = np.dot(self.X_train, weights)
+            predictions = self.sigmoid(scores)
 
-    return weights
+            # Update weights with gradient
+            output_error_signal = self.y_train - predictions
+            gradient = np.dot(self.X_train.T, output_error_signal)
+            weights += self.lr * gradient
 
-def predict(X, weights):
-    return np.round(sigmoid(np.dot(X, weights)))
+            # Print log-likelihood loss
+            if step % 1000 == 0:
+                print("Loss: {}".format(self.log_likelihood(weights)))
 
-def accuracy(X_test, y_test, weights):
-    n = X_test.shape[0]
-    corrects = []
-    for x, y in zip(X_test, y_test):
-        y_pred = predict(x, weights)
-        corrects.append(y_pred - y)
+        return weights
 
-    corrects = np.array(corrects)
-    total_preds = np.count_nonzero(corrects == 0)
-    return total_preds/n
+    def predict(self, X):
+        return np.round(self.sigmoid(np.dot(X, self.weights)))
+
+    def accuracy(self, X_test, y_test):
+        n = X_test.shape[0]
+        corrects = []
+        for x, y in zip(X_test, y_test):
+            y_pred = self.predict(x)
+            corrects.append(y_pred - y)
+
+        corrects = np.array(corrects)
+        total_preds = np.count_nonzero(corrects == 0)
+        return total_preds/n
 
 
 if __name__ == '__main__':
     kfold = 3
+    n_steps = 10000
+    lr = 0.001
     X_train, X_test, y_train, y_test = get_train_test_sets(kfold)
 
-    weights = logistic_regression(X_train, y_train, 10000, 0.001)
-
-    acc = accuracy(X_test, y_test, weights)
+    LR = LogReg(X_train, y_train, n_steps, lr)
+    acc = LR.accuracy(X_test, y_test)
+    print()
     print("The accuracy is: {}".format(acc))
