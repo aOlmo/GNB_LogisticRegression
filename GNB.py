@@ -8,7 +8,7 @@ cs = [0, 1]
 dataset_layout = d.get_dataset_layout()
 
 class GNB:
-    def __init__(self, X_train, y_train, cs, m_std_dict=False):
+    def __init__(self, X_train, y_train, m_std_dict=False):
         self.X_train = X_train
         self.y_train = y_train
         self.cs = cs
@@ -93,19 +93,19 @@ class GNB:
         return np.flip(a.T, 1)
 
 
-if __name__ == '__main__':
-    gen_class = 1
-
-    X_train, X_test, y_train, y_test = d.get_train_test_sets()
-
-    init_GNB = GNB(X_train, y_train, cs)
-
-    X_gen_samples = init_GNB.gen_n_samples(400, gen_class)
-    y_gen_samples = [gen_class] * X_gen_samples.shape[0]
-    print(init_GNB.accuracy(X_gen_samples, y_gen_samples))
-
-    new_GNB = GNB(X_gen_samples, y_gen_samples, [gen_class])
-    gen_m_std_dict = new_GNB.get_m_std_dict()
-
-    print(init_GNB.get_m_std_dict()[1])
-    print(new_GNB.get_m_std_dict()[1])
+# if __name__ == '__main__':
+#     gen_class = 1
+#
+#     X_train, X_test, y_train, y_test = d.get_train_test_sets()
+#
+#     init_GNB = GNB(X_train, y_train, cs)
+#
+#     X_gen_samples = init_GNB.gen_n_samples(400, gen_class)
+#     y_gen_samples = [gen_class] * X_gen_samples.shape[0]
+#     print(init_GNB.accuracy(X_gen_samples, y_gen_samples))
+#
+#     new_GNB = GNB(X_gen_samples, y_gen_samples, [gen_class])
+#     gen_m_std_dict = new_GNB.get_m_std_dict()
+#
+#     print(init_GNB.get_m_std_dict()[1])
+#     print(new_GNB.get_m_std_dict()[1])

@@ -28,6 +28,9 @@ class Dataset:
     def get_dataset_layout(self):
         return self.dataset_layout
 
+    def get_n_data(self):
+        return self.n
+
     def get_train_test_sets(self):
         kfold = KFold(self.k_fold, True, 0)
         X = self.data[:, 0:self.class_position]
@@ -48,4 +51,6 @@ class Dataset:
         pri_c1, pri_c0 = n_c1 / self.n, n_c0 / self.n
 
         return pri_c0, pri_c1
+
+
     # ================== ================== ================== #
