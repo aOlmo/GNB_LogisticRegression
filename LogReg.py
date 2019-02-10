@@ -60,13 +60,13 @@ class LogReg():
         return total_preds/n
 
 
-# if __name__ == '__main__':
-#     n_steps = 10000
-#     lr = 0.001
-#
-#     X_train, X_test, y_train, y_test = d.get_train_test_sets()
-#
-#     LR = LogReg(X_train, y_train, n_steps, lr)
-#     acc = LR.accuracy(X_test, y_test)
-#     print()
-#     print("The accuracy is: {}".format(acc))
+if __name__ == '__main__':
+    n_steps = 10000
+    lr = 0.001
+
+    X_train, X_test, y_train, y_test = d.get_train_test_sets()
+
+    LR = LogReg(X_train, y_train, n_steps, lr)
+    acc = LR.accuracy(X_test, y_test)
+    print()
+    print("The accuracy is: {}".format(acc))
