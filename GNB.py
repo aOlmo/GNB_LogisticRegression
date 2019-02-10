@@ -8,7 +8,7 @@ cs = [0, 1]
 dataset_layout = d.get_dataset_layout()
 
 class GNB:
-    def __init__(self, X_train, y_train, m_std_dict=False):
+    def __init__(self, X_train, y_train, cs=cs, m_std_dict=False):
         self.X_train = X_train
         self.y_train = y_train
         self.cs = cs
@@ -36,7 +36,7 @@ class GNB:
         m_std_dict = {}
         data_train = np.c_[self.X_train, self.y_train]
         for c in self.cs:
-            m_std_dict[c]={}
+            m_std_dict[c] = {}
             X_train_c = data_train[data_train[:, c_pos] == c][:, :c_pos]
             for i, attr in enumerate(dataset_layout[:c_pos]):
                 m_std_dict[c][attr] = {
@@ -98,7 +98,7 @@ class GNB:
 #
 #     X_train, X_test, y_train, y_test = d.get_train_test_sets()
 #
-#     init_GNB = GNB(X_train, y_train, cs)
+#     init_GNB = GNB(X_train, y_train)
 #
 #     X_gen_samples = init_GNB.gen_n_samples(400, gen_class)
 #     y_gen_samples = [gen_class] * X_gen_samples.shape[0]

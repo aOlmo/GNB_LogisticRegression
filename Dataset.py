@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+from sklearn.utils import shuffle
 from sklearn.model_selection import KFold
 
 
@@ -33,6 +34,8 @@ class Dataset:
 
     def get_train_test_sets(self):
         kfold = KFold(self.k_fold, True, 0)
+        # Do a manual shuffle because the KFold option doesn't seem to work
+        self.data = shuffle(self.data, random_state=0)
         X = self.data[:, 0:self.class_position]
         y = self.data[:, self.class_position]
 
@@ -51,6 +54,5 @@ class Dataset:
         pri_c1, pri_c0 = n_c1 / self.n, n_c0 / self.n
 
         return pri_c0, pri_c1
-
 
     # ================== ================== ================== #

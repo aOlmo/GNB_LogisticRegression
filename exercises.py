@@ -17,11 +17,6 @@ if __name__ == '__main__':
         X_train = X_train[:index]
         y_train = y_train[:index]
 
-        print(X_train)
-        print()
-        print(y_train)
-        exit()
-
         GNB_classifier = GNB(X_train, y_train)
         LogReg_classifier = LogReg(X_train, y_train, 10000, 0.001)
 
