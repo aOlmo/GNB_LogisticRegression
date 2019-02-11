@@ -110,8 +110,5 @@ if __name__ == '__main__':
     # new_GNB = GNB(X_gen_samples, y_gen_samples, [gen_class])
     # gen_m_std_dict = new_GNB.get_m_std_dict()
 
-
-
-
     # print(init_GNB.get_m_std_dict()[1])
     # print(new_GNB.get_m_std_dict()[1])
