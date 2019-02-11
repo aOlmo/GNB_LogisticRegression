@@ -19,13 +19,16 @@ class LogReg():
         self.lr = lr
         self.weights = self.logistic_regression()
 
-    # - Define the Logistic function
+    def get_weights(self):
+        return self.weights
+
+    # Define the Logistic function
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
     def log_likelihood(self, weights):
         scores = np.dot(self.X_train, weights)
-        return np.sum(self.y_train*scores - np.log(1 + np.exp(scores)))
+        return np.sum(self.y_train * scores - np.log(1 + np.exp(scores)))
 
     def logistic_regression(self):
         weights = np.zeros(self.X_train.shape[1])
@@ -57,7 +60,7 @@ class LogReg():
 
         corrects = np.array(corrects)
         total_preds = np.count_nonzero(corrects == 0)
-        return total_preds/n
+        return total_preds / n
 
 
 if __name__ == '__main__':
@@ -66,7 +69,12 @@ if __name__ == '__main__':
 
     X_train, X_test, y_train, y_test = d.get_train_test_sets()
 
+    X_train = np.array(
+        [[1, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], [0, 0, -1], [0, -1, 0]])
+    y_train = np.array([0, 0, 0, 1, 1, 1])
+
     LR = LogReg(X_train, y_train, n_steps, lr)
-    acc = LR.accuracy(X_test, y_test)
-    print()
+    acc = LR.accuracy(X_train, y_train)
+
+    print("[+]: The weight vector is: {}".format(LR.get_weights()))
     print("The accuracy is: {}".format(acc))
