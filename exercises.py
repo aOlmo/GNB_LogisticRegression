@@ -82,6 +82,21 @@ def exercise_5_2_3(d):
     print("[+]: Mean and std for the generated dataset:")
     print("[+]: {}".format(gen_m_std_dict[1]))
 
+def exercise_4(d):
+    n_steps = 10000
+    lr = 0.001
+
+    X_train, X_test, y_train, y_test = d.get_train_test_sets()
+
+    X_train = np.array(
+        [[1, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], [0, 0, -1], [0, -1, 0]])
+    y_train = np.array([0, 0, 0, 1, 1, 1])
+
+    LR = LogReg(X_train, y_train, n_steps, lr)
+    acc = LR.accuracy(X_train, y_train)
+
+    print("[+]: The weight vector is: {}".format(LR.get_weights()))
+    print("The accuracy is: {}".format(acc))
 
 if __name__ == '__main__':
     d = Dataset()
@@ -90,3 +105,5 @@ if __name__ == '__main__':
     exercise_5_2_2(d)
     print("============== Exercise 5.2.3 ============== ")
     exercise_5_2_3(d)
+    print("==============   Exercise 4   ============== ")
+    exercise_4(d)
