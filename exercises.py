@@ -53,8 +53,9 @@ def exercise_5_2_2(d):
     GNB_accs = np.array(GNB_accs) / runs
     LR_accs = np.array(LR_accs) / runs
 
-    plt.plot(fractions, GNB_accs, 'bo-', label='line 1', linewidth=2)
-    plt.plot(fractions, LR_accs, 'ro-', label='line 2', linewidth=2)
+    plt.plot(fractions, GNB_accs, 'bo-', label='GNB', linewidth=2)
+    plt.plot(fractions, LR_accs, 'ro-', label='LR', linewidth=2)
+    plt.legend(loc='lower right')
     plt.show()
 
 def exercise_5_2_3(d):
@@ -67,6 +68,7 @@ def exercise_5_2_3(d):
 
     # Get the X and y samples
     X_gen_samples = GNB_generator.gen_n_samples(n_gen_samples, gen_class)
+    np.savetxt("gen_data.txt", X_gen_samples)
     y_gen_samples = [gen_class] * X_gen_samples.shape[0]
 
     # Create an auxiliary GNB classifier to get the mean and std of the new data
@@ -78,9 +80,9 @@ def exercise_5_2_3(d):
     base_m_std_dict = base_GNB.get_m_std_dict()
 
     print("[+]: Mean and std for the dataset:")
-    print("[+]: {}".format(base_m_std_dict[1]))
+    print("{}".format(base_m_std_dict[1]))
     print("[+]: Mean and std for the generated dataset:")
-    print("[+]: {}".format(gen_m_std_dict[1]))
+    print("{}".format(gen_m_std_dict[1]))
 
 def exercise_4(d):
     n_steps = 10000
@@ -102,7 +104,7 @@ if __name__ == '__main__':
     d = Dataset()
 
     print("============== Exercise 5.2.2 ============== ")
-    exercise_5_2_2(d)
+    # exercise_5_2_2(d)
     print("============== Exercise 5.2.3 ============== ")
     exercise_5_2_3(d)
     print("==============   Exercise 4   ============== ")

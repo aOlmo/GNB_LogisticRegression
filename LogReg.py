@@ -11,9 +11,12 @@ cs = [0, 1]
 dataset_layout = d.get_dataset_layout()
 
 
+def add_column(X):
+    return np.hstack((np.ones((X.shape[0], 1)), X))
+
 class LogReg():
     def __init__(self, X_train, y_train, n_steps, lr):
-        self.X_train = X_train
+        self.X_train = add_column(X_train)
         self.y_train = y_train
         self.n_steps = n_steps
         self.lr = lr
@@ -31,7 +34,6 @@ class LogReg():
         return np.sum(self.y_train * scores - np.log(1 + np.exp(scores)))
 
     def logistic_regression(self):
-        # weights = np.array([100.,0.,0.])
         weights = np.zeros(self.X_train.shape[1])
 
         for step in range(self.n_steps):
@@ -53,6 +55,7 @@ class LogReg():
         return np.round(self.sigmoid(np.dot(X, self.weights)))
 
     def accuracy(self, X_test, y_test):
+        X_test = add_column(X_test)
         n = X_test.shape[0]
         corrects = []
         for x, y in zip(X_test, y_test):
@@ -64,18 +67,18 @@ class LogReg():
         return total_preds / n
 
 
-# if __name__ == '__main__':
-#     n_steps = 10000
-#     lr = 0.001
-#
-#     X_train, X_test, y_train, y_test = d.get_train_test_sets()
-#
-#     X_train = np.array(
-#         [[1, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], [0, 0, -1], [0, -1, 0]])
-#     y_train = np.array([0, 0, 0, 1, 1, 1])
-#
-#     LR = LogReg(X_train, y_train, n_steps, lr)
-#     acc = LR.accuracy(X_train, y_train)
-#
-#     print("[+]: The weight vector is: {}".format(LR.get_weights()))
-#     print("The accuracy is: {}".format(acc))
+if __name__ == '__main__':
+    n_steps = 10000
+    lr = 0.001
+
+    X_train, X_test, y_train, y_test = d.get_train_test_sets()
+
+    X_train = np.array(
+        [[1, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], [0, 0, -1], [0, -1, 0]])
+    y_train = np.array([0, 0, 0, 1, 1, 1])
+
+    LR = LogReg(X_train, y_train, n_steps, lr)
+    acc = LR.accuracy(X_train, y_train)
+
+    print("[+]: The weight vector is: {}".format(LR.get_weights()))
+    print("The accuracy is: {}".format(acc))

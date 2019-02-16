@@ -40,8 +40,8 @@ class GNB:
             X_train_c = data_train[data_train[:, c_pos] == c][:, :c_pos]
             for i, attr in enumerate(dataset_layout[:c_pos]):
                 m_std_dict[c][attr] = {
-                    "mean": self.mean(X_train_c[:, i]),
-                    "std": self.stddev(X_train_c[:, i])
+                    "mean": round(self.mean(X_train_c[:, i]), 2),
+                    "std": round(self.stddev(X_train_c[:, i]), 2)
                 }
 
         return m_std_dict
